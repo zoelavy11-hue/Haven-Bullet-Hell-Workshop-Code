@@ -5,4 +5,4 @@
 
 All of the code, step by step for the Bullet Hell workshop (with annotations!)
 
-If you're reading this, welcome to Haven! I hope you have fun this weekend :)
+If you're reading this, welcome to Haven! We hope you have fun this weekend :)
