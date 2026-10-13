@@ -1,15 +1,21 @@
 extends CharacterBody2D
 
+#The normal & focused character speed in pixels per second. Feel free to edit the speed!!
 @export var speed = 270.0
 @export var focus_speed = 120.0
 
+#Tracks weather the player is currently in focus mode
 var focused = false
 
 func _physics_process(_delta):
 	var direction = Input.get_vector("ui_left","ui_right", "ui_up", "ui_down")
 	var was_focused = focused
+#saves the last frame's focus state, then checks wether the "focus" key is held down.
 	focused = Input.is_action_pressed("focus")
 	velocity = direction * (focus_speed if focused else speed)
+#moves the body using velocity & handles collisions
 	move_and_slide()
 	if focused != was_focused:
 		queue_redraw()
+
+#NOTE: Code cannot run without a "_draw" function, which will be added in the second step to illustrate our hitbox.
