@@ -1,0 +1,15 @@
+extends CharacterBody2D
+
+@export var speed = 270.0
+@export var focus_speed = 120.0
+
+var focused = false
+
+func _physics_process(_delta):
+	var direction = Input.get_vector("ui_left","ui_right", "ui_up", "ui_down")
+	var was_focused = focused
+	focused = Input.is_action_pressed("focus")
+	velocity = direction * (focus_speed if focused else speed)
+	move_and_slide()
+	if focused != was_focused:
+		queue_redraw()
