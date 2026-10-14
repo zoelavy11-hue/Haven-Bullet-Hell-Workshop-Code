@@ -1,1 +1,5 @@
-
+func _draw():
+	if focused:
+		draw_circle(Vector2.ZERO, hitbox_radius + 2.5, Color.DARK_RED)
+		draw_circle(Vector2.ZERO, hitbox_radius, Color.GHOST_WHITE)
+#this draws out the hitboxes shape, and makes the code run!
