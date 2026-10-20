@@ -18,4 +18,8 @@ func _physics_process(_delta):
 	if focused != was_focused:
 		queue_redraw()
 
-#NOTE: Code cannot run without a "_draw" function, which will be added in the second step to illustrate our hitbox. Delete this when on step 2
+func _draw():
+	if focused:
+		draw_circle(Vector2.ZERO, hitbox_radius + 2.5, Color.DARK_RED)
+		draw_circle(Vector2.ZERO, hitbox_radius, Color.GHOST_WHITE)
+#this draws out the hitboxes shape, and makes the code run!
