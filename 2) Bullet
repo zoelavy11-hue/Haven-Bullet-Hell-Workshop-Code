@@ -1,1 +1,53 @@
+extends Area2D
+
+#How fast the bullet flies in pixels per second. Feel free to edit!!
+@export var speed = 200.0
+#How many seconds the bullet lives before disappearing (so the game doesn't fill up with old bullets!)
+@export var lifetime = 8.0
+#How long the bullet waits (in seconds) before it starts curving toward the player
+@export var homing_delay = 0.5
+#How long the bullet keeps curving toward the player. 0 = no homing at all! (the boss sets this for us)
+@export var homing_duration = 0.0
+#How sharply the bullet can turn, in radians per second. Bigger number = sharper turns!
+@export var turn_speed = 3.0
+
+#The player! The boss tells each bullet who to chase.
+var target: Node2D
+#How long this bullet has been alive
+var _age = 0.0
+#Which way (and how fast) the bullet is moving. This is a vector!
+var _velocity = Vector2.ZERO
+
+func _ready():
+#turns the direction the bullet is facing into a velocity, so it flies the way the boss aimed it
+	_velocity = Vector2.RIGHT.rotated(rotation) * speed
+#this is a signal! when something touches the bullet, it runs _on_body_entered
+	body_entered.connect(_on_body_entered)
+
+func _physics_process(delta):
+#adds the time since the last frame to the bullet's age, and deletes it if it's too old
+	_age += delta
+	if _age > lifetime:
+		queue_free()
+		return
+
+#the bullet only homes in during its homing window (after the delay, before the duration runs out)
+	var homing = _age > homing_delay and _age < homing_delay + homing_duration
+	if homing and is_instance_valid(target):
+#finds the angle pointing at the player, and the angle the bullet is moving right now
+		var desired = (target.global_position - global_position).angle()
+		var current = _velocity.angle()
+#finds the shortest way to turn (left or right), then limits how much it can turn this frame
+		var diff = wrapf(desired - current, -PI, PI)
+		var step = clamp(diff, -turn_speed * delta, turn_speed * delta)
+		_velocity = _velocity.rotated(step)
+
+#moves the bullet, and spins its sprite to face the way it's flying
+	global_position += _velocity * delta
+	rotation = _velocity.angle()
+
+func _on_body_entered(body):
+#if the bullet touches the player, the bullet disappears!
+	if body == target:
+		queue_free()
 
