@@ -1,1 +1,63 @@
+extends Node2D
+
+#The bullet scene the boss shoots. Drag "bullet.tscn" into this slot in the Inspector!
+@export var bullet_scene: PackedScene
+#Who the boss aims at. Assign your player (CharacterBody2D) in the Inspector!
+@export var target: Node2D
+
+func _ready():
+#starts the boss's attack patterns as soon as the game begins
+	run_stage()
+
+func run_stage():
+#this LOOP runs forever, so the boss repeats all 3 attacks over and over
+	while true:
+#ATTACK 1: 4 rings of 20 homing bullets, each ring slightly turned from the last one
+		for i in 4:
+			ring(20, i * 0.20, 1.5)
+			await wait(1.0)
+		await wait(2.0)
+
+#ATTACK 2: a spinning spiral with 8 arms! TAU is a full circle (360 degrees) in radians
+		for i in 120:
+			for arm in 8:
+				fire(i * 2.0 + arm * TAU / 8, 0.0)
+			await wait(0.05)
+		await wait(2.0)
+
+#ATTACK 3: spreads of bullets aimed right at the player
+		for i in 20:
+			aimed_spread(7, 0.15)
+			await wait(0.2)
+		await wait(2.0)
+
+#Fires "count" bullets evenly spaced around a full circle
+func ring(count, offset, homing):
+	for i in count:
+		fire(offset + TAU * i / count, homing)
+
+#Fires "count" bullets in a fan, centered on the player. "gap" is the space between each bullet (in radians)
+func aimed_spread(count, gap):
+#if the player is gone, don't aim at them!
+	if not is_instance_valid(target):
+		return
+#finds the angle pointing at the player, then starts the fan on the left side
+	var aim = (target.global_position - global_position).angle()
+	var start = aim - gap * (count - 1) / 2.0
+	for i in count:
+		fire(start + gap * i, 0.0)
+
+#Creates ONE bullet, points it at "angle", and adds it to the game
+func fire(angle, homing_duration):
+	var b = bullet_scene.instantiate()
+	b.rotation = angle
+	b.target = target
+	b.homing_duration = homing_duration
+#adds the bullet to the main scene (not the boss), so bullets don't move when the boss moves
+	get_parent().add_child(b)
+	b.global_position = global_position
+
+#Pauses the attack for "seconds" seconds. We use this with await!
+func wait(seconds):
+	return get_tree().create_timer(seconds).timeout
 
